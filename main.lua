@@ -3,6 +3,7 @@ local InfoMessage = require("ui/widget/infomessage")
 local InputDialog = require("ui/widget/inputdialog")
 local UIManager = require("ui/uimanager")
 local InputContainer = require("ui/widget/container/inputcontainer")
+local ChatGPTMessage = require("chatgptmessage")
 local API_KEY = require("api_key")
 local _ = require("gettext")
 local https = require("ssl.https")
@@ -80,9 +81,8 @@ local function showChatGPTDialog(highlightedText)
                         local question = input_dialog:getInputText()
                         local answer = queryChatGPT(highlightedText, question)
                         UIManager:close(input_dialog)
-                        UIManager:show(InfoMessage:new {
+                        UIManager:show(ChatGPTMessage:new {
                             text = answer,
-                            timeout = 100,
                         })
                     end,
                 },
@@ -92,6 +92,7 @@ local function showChatGPTDialog(highlightedText)
     UIManager:show(input_dialog)
     input_dialog:onShowKeyboard()
 end
+
 
 function ChatGPTHighlight:init()
     self.ui.highlight:addToHighlightDialog("chatgpthighlight_ChatGPT", function(_reader_highlight_instance)
