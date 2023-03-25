@@ -1,9 +1,8 @@
 local Device = require("device")
-local InfoMessage = require("ui/widget/infomessage")
+local TextViewer = require("ui/widget/textviewer")
 local InputDialog = require("ui/widget/inputdialog")
 local UIManager = require("ui/uimanager")
 local InputContainer = require("ui/widget/container/inputcontainer")
-local ChatGPTMessage = require("chatgptmessage")
 local API_KEY = require("api_key")
 local _ = require("gettext")
 local https = require("ssl.https")
@@ -81,8 +80,12 @@ local function showChatGPTDialog(highlightedText)
                         local question = input_dialog:getInputText()
                         local answer = queryChatGPT(highlightedText, question)
                         UIManager:close(input_dialog)
-                        UIManager:show(ChatGPTMessage:new {
-                            text = answer,
+                        local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"" ..
+                            "\n\n" .. _("Question: ") .. question ..
+                            "\n\n" .. _("Answer: ") .. answer
+                        UIManager:show(TextViewer:new {
+                            title = _("ChatGPT Response"),
+                            text = result_text,
                         })
                     end,
                 },
