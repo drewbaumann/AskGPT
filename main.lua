@@ -14,7 +14,7 @@ local ChatGPTHighlight = InputContainer:new {
     is_doc_only = true,
 }
 
-local function queryChatGPT(highlightedText, question)
+local function queryChatGPT(highlightedText, question, title, author)
     local api_key = API_KEY.key
     local api_url = "https://api.openai.com/v1/chat/completions"
 
@@ -33,7 +33,9 @@ local function queryChatGPT(highlightedText, question)
             },
             {
                 role = "user",
-                content = "I have a question about the following Highlighted text: " .. highlightedText,
+                content = "I'm reading something titled '" ..
+                    title ..
+                    "' by " .. author .. ". I have a question about the following highlighted text: " .. highlightedText,
             },
             {
                 role = "user",
@@ -60,7 +62,14 @@ local function queryChatGPT(highlightedText, question)
     return response.choices[1].message.content
 end
 
-local function showChatGPTDialog(highlightedText)
+local function getBookTitleAndAuthor(ui)
+    local title = ui.document:getProps().title or _("Unknown Title")
+    local author = ui.document:getProps().authors or _("Unknown Author")
+    return title, author
+end
+
+local function showChatGPTDialog(ui, highlightedText)
+    local title, author = getBookTitleAndAuthor(ui)
     local input_dialog
     input_dialog = InputDialog:new {
         title = _("Ask a question about the highlighted text"),
@@ -78,7 +87,7 @@ local function showChatGPTDialog(highlightedText)
                     text = _("Submit"),
                     callback = function()
                         local question = input_dialog:getInputText()
-                        local answer = queryChatGPT(highlightedText, question)
+                        local answer = queryChatGPT(highlightedText, question, title, author)
                         UIManager:close(input_dialog)
                         local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"" ..
                             "\n\n" .. _("Question: ") .. question ..
@@ -96,14 +105,13 @@ local function showChatGPTDialog(highlightedText)
     input_dialog:onShowKeyboard()
 end
 
-
 function ChatGPTHighlight:init()
     self.ui.highlight:addToHighlightDialog("chatgpthighlight_ChatGPT", function(_reader_highlight_instance)
         return {
             text = _("Ask ChatGPT"),
             enabled = Device:hasClipboard(),
             callback = function()
-                showChatGPTDialog(_reader_highlight_instance.selected_text.text)
+                showChatGPTDialog(self.ui, _reader_highlight_instance.selected_text.text)
             end,
         }
     end)
