@@ -9,6 +9,13 @@ local function showChatGPTDialog(ui, highlightedText)
   local title, author =
       ui.document:getProps().title or _("Unknown Title"),
       ui.document:getProps().authors or _("Unknown Author")
+  local message_history = {
+    {
+      role = "system",
+      content =
+      "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Answer as concisely as possible.",
+    },
+  }
   local input_dialog
   input_dialog = InputDialog:new {
     title = _("Ask a question about the highlighted text"),
@@ -32,8 +39,31 @@ local function showChatGPTDialog(ui, highlightedText)
             }
             UIManager:show(loading)
 
+            -- Give context to the question
+            local context_message = {
+              role = "user",
+              content = "I'm reading something titled '" ..
+                  title ..
+                  "' by " .. author .. ". I have a question about the following highlighted text: " .. highlightedText,
+            }
+            table.insert(message_history, context_message)
+
+            -- Ask the question
             local question = input_dialog:getInputText()
-            local answer = queryChatGPT(highlightedText, question, title, author)
+            local question_message = {
+              role = "user",
+              content = question,
+            }
+            table.insert(message_history, question_message)
+
+            local answer = queryChatGPT(message_history)
+            -- Save the answer to the message history
+            local answer_message = {
+              role = "assistant",
+              content = answer,
+            }
+
+            table.insert(message_history, answer_message)
             UIManager:close(input_dialog)
             local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"" ..
                 "\n\n" .. _("Question: ") .. question ..

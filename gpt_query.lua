@@ -3,7 +3,7 @@ local https = require("ssl.https")
 local ltn12 = require("ltn12")
 local json = require("json")
 
-local function queryChatGPT(highlightedText, question, title, author)
+local function queryChatGPT(message_history)
   local api_key = API_KEY.key
   local api_url = "https://api.openai.com/v1/chat/completions"
 
@@ -14,23 +14,7 @@ local function queryChatGPT(highlightedText, question, title, author)
 
   local requestBody = json.encode({
     model = "gpt-3.5-turbo",
-    messages = {
-      {
-        role = "system",
-        content =
-        "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Answer as concisely as possible.",
-      },
-      {
-        role = "user",
-        content = "I'm reading something titled '" ..
-            title ..
-            "' by " .. author .. ". I have a question about the following highlighted text: " .. highlightedText,
-      },
-      {
-        role = "user",
-        content = question,
-      },
-    },
+    messages = message_history,
   })
 
   local responseBody = {}
