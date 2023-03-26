@@ -1,15 +1,16 @@
 local InputDialog = require("ui/widget/inputdialog")
 local TextViewer = require("ui/widget/textviewer")
+local InteractiveViewer = require("interactiveviewer")
 local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 
 local queryChatGPT = require("gpt_query")
 
-local function showChatGPTDialog(ui, highlightedText)
+local function showChatGPTDialog(ui, highlightedText, message_history)
   local title, author =
       ui.document:getProps().title or _("Unknown Title"),
       ui.document:getProps().authors or _("Unknown Author")
-  local message_history = {
+  local message_history = message_history or {
     {
       role = "system",
       content =
@@ -68,10 +69,46 @@ local function showChatGPTDialog(ui, highlightedText)
             local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"" ..
                 "\n\n" .. _("Question: ") .. question ..
                 "\n\n" .. _("Answer: ") .. answer
-            UIManager:show(TextViewer:new {
+
+            local function createResultText(highlightedText, message_history)
+              local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"\n\n"
+
+              for _, message in ipairs(message_history) do
+                if message.role == "user" then
+                  result_text = result_text .. _("Question: ") .. message.content .. "\n\n"
+                else
+                  result_text = result_text .. _("Answer: ") .. message.content .. "\n\n"
+                end
+              end
+
+              return result_text
+            end
+
+            local function handleNewQuestion(interactive_viewer, question)
+              -- Add the new question to the message history
+              table.insert(message_history, { role = "user", content = question })
+
+              -- Send the query to ChatGPT with the updated message_history
+              local answer = queryChatGPT(message_history)
+
+              -- Add the answer to the message history
+              table.insert(message_history, { role = "assistant", content = answer })
+
+              -- Update the result text
+              local result_text = createResultText(highlightedText, message_history)
+
+              -- Update the text and refresh the viewer
+              interactive_viewer.text = result_text
+              interactive_viewer:update()
+            end
+
+            local interactive_viewer = InteractiveViewer:new {
               title = _("ChatGPT Response"),
               text = result_text,
-            })
+              onAskQuestion = handleNewQuestion, -- Pass the callback function
+            }
+
+            UIManager:show(interactive_viewer)
           end,
         },
       },
