@@ -1,5 +1,5 @@
-local TextViewer = require("ui/widget/textviewer")
 local InputDialog = require("ui/widget/inputdialog")
+local TextViewer = require("ui/widget/textviewer")
 local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 
@@ -25,6 +25,13 @@ local function showChatGPTDialog(ui, highlightedText)
         {
           text = _("Submit"),
           callback = function()
+            local InfoMessage = require("ui/widget/infomessage")
+            local loading = InfoMessage:new {
+              text = _("Loading..."),
+              timeout = 1,
+            }
+            UIManager:show(loading)
+
             local question = input_dialog:getInputText()
             local answer = queryChatGPT(highlightedText, question, title, author)
             UIManager:close(input_dialog)
