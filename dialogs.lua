@@ -30,7 +30,7 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
           end,
         },
         {
-          text = _("Submit"),
+          text = _("Ask"),
           callback = function()
             local InfoMessage = require("ui/widget/infomessage")
             local loading = InfoMessage:new {
