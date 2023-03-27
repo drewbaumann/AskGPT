@@ -66,17 +66,17 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
             table.insert(message_history, answer_message)
             UIManager:close(input_dialog)
             local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"" ..
-                "\n\n" .. _("Question: ") .. question ..
-                "\n\n" .. _("Answer: ") .. answer
+                "\n\n" .. _("User: ") .. question ..
+                "\n\n" .. _("ChatGPT: ") .. answer
 
             local function createResultText(highlightedText, message_history)
               local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"\n\n"
 
               for i = 3, #message_history do
                 if message_history[i].role == "user" then
-                  result_text = result_text .. _("Question: ") .. message_history[i].content .. "\n\n"
+                  result_text = result_text .. _("User: ") .. message_history[i].content .. "\n\n"
                 else
-                  result_text = result_text .. _("Answer: ") .. message_history[i].content .. "\n\n"
+                  result_text = result_text .. _("ChatGPT: ") .. message_history[i].content .. "\n\n"
                 end
               end
 
