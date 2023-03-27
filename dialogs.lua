@@ -1,6 +1,5 @@
 local InputDialog = require("ui/widget/inputdialog")
-local TextViewer = require("ui/widget/textviewer")
-local InteractiveViewer = require("interactiveviewer")
+local ChatGPTViewer = require("chatgptviewer")
 local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 
@@ -73,18 +72,19 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
             local function createResultText(highlightedText, message_history)
               local result_text = _("Highlighted text: ") .. "\"" .. highlightedText .. "\"\n\n"
 
-              for _, message in ipairs(message_history) do
-                if message.role == "user" then
-                  result_text = result_text .. _("Question: ") .. message.content .. "\n\n"
+              for i = 3, #message_history do
+                if message_history[i].role == "user" then
+                  result_text = result_text .. _("Question: ") .. message_history[i].content .. "\n\n"
                 else
-                  result_text = result_text .. _("Answer: ") .. message.content .. "\n\n"
+                  result_text = result_text .. _("Answer: ") .. message_history[i].content .. "\n\n"
                 end
               end
 
               return result_text
             end
 
-            local function handleNewQuestion(interactive_viewer, question)
+
+            local function handleNewQuestion(chatgpt_viewer, question)
               -- Add the new question to the message history
               table.insert(message_history, { role = "user", content = question })
 
@@ -98,17 +98,16 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
               local result_text = createResultText(highlightedText, message_history)
 
               -- Update the text and refresh the viewer
-              interactive_viewer.text = result_text
-              interactive_viewer:update()
+              chatgpt_viewer:update(result_text)
             end
 
-            local interactive_viewer = InteractiveViewer:new {
+            local chatgpt_viewer = ChatGPTViewer:new {
               title = _("ChatGPT Response"),
               text = result_text,
               onAskQuestion = handleNewQuestion, -- Pass the callback function
             }
 
-            UIManager:show(interactive_viewer)
+            UIManager:show(chatgpt_viewer)
           end,
         },
       },
