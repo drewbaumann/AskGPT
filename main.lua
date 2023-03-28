@@ -4,13 +4,13 @@ local _ = require("gettext")
 
 local showChatGPTDialog = require("dialogs")
 
-local ChatGPTHighlight = InputContainer:new {
-  name = "chatgpthighlight",
+local AskGPT = InputContainer:new {
+  name = "askgpt",
   is_doc_only = true,
 }
 
-function ChatGPTHighlight:init()
-  self.ui.highlight:addToHighlightDialog("chatgpthighlight_ChatGPT", function(_reader_highlight_instance)
+function AskGPT:init()
+  self.ui.highlight:addToHighlightDialog("askgpt_ChatGPT", function(_reader_highlight_instance)
     return {
       text = _("Ask ChatGPT"),
       enabled = Device:hasClipboard(),
@@ -21,4 +21,4 @@ function ChatGPTHighlight:init()
   end)
 end
 
-return ChatGPTHighlight
+return AskGPT
