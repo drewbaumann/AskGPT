@@ -10,17 +10,36 @@ Get [KoReader](https://github.com/koreader/koreader) installed on your e-reader.
 
 If you want to do this on a Kindle, you are going to have to jailbreak it. I recommend following [this guide](https://www.mobileread.com/forums/showthread.php?t=320564) to jailbreak your Kindle.
 
-An API key from OpenAI. Once you have your API key, create a `api_key.lua` file in the following structure:
+Acquire an API key from an API account on OpenAI (with credits). Once you have your API key, create a `configuration.lua` file in the following structure or modify and rename the `configuration.lua.sample` file:
+
+> **Note:** The prior `api_key.lua` style configuration is deprecated. Please use the new `configuration.lua` style configuration.
 
 ```lua
-local API_KEY = {
-  key = "your_api_key",
+local CONFIGURATION = {
+    api_key = "YOUR_API_KEY",
+    model = "gpt-4o-mini",
+    base_url = "https://api.openai.com/v1/chat/completions",
 }
 
-return API_KEY
+return CONFIGURATION
 ```
 
-If you clone this project, you should be able to put the directory, `askgpt.koplugin`, in the `koreader/plugins` directory and it should work. If you want to use the plugin without cloning the project, you can download the zip file from the releases page and extract the `askgpt.koplugin` directory to the `koreader/plugins` directory.
+In this new format you can specify the model you want to use, the API key, and the base URL for the API. The model is optional and defaults to `gpt-4o-mini`. The base URL is also optional and defaults to `https://api.openai.com/v1/chat/completions`. This is useful if you want to use a different model or a different API endpoint (such as via Azure or another LLM that uses the same API style as OpenAI).
+
+For example, you could use a local API via a tool like (Ollama)[https://ollama.com/blog/openai-compatibility] and set the base url to point to your computers IP address and port.
+
+```lua
+local CONFIGURATION = {
+    api_key = "ollama",
+    model = "zephyr",
+    base_url = "http://192.168.1.87:11434/v1/chat/completions",
+    additional_parameters = {},
+}
+
+return CONFIGURATION
+```
+
+If you clone this project, you should be able to put the directory, `askgpt.koplugin`, in the `koreader/plugins` directory and it should work. If you want to use the plugin without cloning the project, you can download the zip file from the releases page and extract the `askgpt.koplugin` directory to the `koreader/plugins` directory. If for some reason you extract the files of this repository in another directory, rename it before moving it to the `koreader/plugins` directory.
 
 ## How To Use
 
