@@ -26,7 +26,7 @@ return CONFIGURATION
 
 In this new format you can specify the model you want to use, the API key, and the base URL for the API. The model is optional and defaults to `gpt-4o-mini`. The base URL is also optional and defaults to `https://api.openai.com/v1/chat/completions`. This is useful if you want to use a different model or a different API endpoint (such as via Azure or another LLM that uses the same API style as OpenAI).
 
-For example, you could use a local API via a tool like (Ollama)[https://ollama.com/blog/openai-compatibility] and set the base url to point to your computers IP address and port.
+For example, you could use a local API via a tool like [Ollama](https://ollama.com/blog/openai-compatibility) and set the base url to point to your computers IP address and port.
 
 ```lua
 local CONFIGURATION = {
