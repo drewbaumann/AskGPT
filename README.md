@@ -18,7 +18,7 @@ Acquire an API key from an API account on OpenAI (with credits). Once you have y
 local CONFIGURATION = {
     api_key = "YOUR_API_KEY",
     model = "gpt-4o-mini",
-    base_url = "https://api.openai.com/v1/chat/completions",
+    base_url = "https://api.openai.com/v1/chat/completions"
 }
 
 return CONFIGURATION
@@ -33,7 +33,7 @@ local CONFIGURATION = {
     api_key = "ollama",
     model = "zephyr",
     base_url = "http://192.168.1.87:11434/v1/chat/completions",
-    additional_parameters = {},
+    additional_parameters = {}
 }
 
 return CONFIGURATION
