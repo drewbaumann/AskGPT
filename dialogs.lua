@@ -143,8 +143,8 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
 
         UIManager:scheduleIn(0.1, function()
           local translated_text
-          if CONFIGURATION and CONFIGURATION.features and CONFIGURATION.features.language then
-            translated_text = translateText(highlightedText, CONFIGURATION.features.language)
+          if CONFIGURATION and CONFIGURATION.features and CONFIGURATION.features.translate_to then
+            translated_text = translateText(highlightedText, CONFIGURATION.features.translate_to)
           else
             translated_text = _("Translation configuration not found.")
           end
@@ -152,7 +152,7 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
           -- Add the translation request to message history
           table.insert(message_history, {
             role = "user",
-            content = "Translate to " .. (CONFIGURATION.features.language or "unknown language") .. ": " .. highlightedText
+            content = "Translate to " .. (CONFIGURATION.features.translate_to or "unknown language") .. ": " .. highlightedText
           })
 
           -- Add the translation response to message history
