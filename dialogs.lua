@@ -16,15 +16,25 @@ else
   print("configuration.lua not found, skipping...")
 end
 
-local function translateText(text, target_language)
+local function translateText(text)
+  if not text or text == "" then
+    return _("Error: No text provided for translation")
+  end
+
+  local translation_prompt = CONFIGURATION 
+    and CONFIGURATION.features 
+    and CONFIGURATION.features.custom_prompts 
+    and CONFIGURATION.features.custom_prompts.translation
+    or "You are a skilled translator and language expert. First explain the meaning of the text in the original language, then provide an accurate translation to English."
+
   local translation_message = {
     role = "user",
-    content = "Translate the following text to " .. target_language .. ": " .. text
+    content = "For the following text:\n\n\"" .. text .. "\"\n\n1. First explain what this means/expresses in the original language\n2. Then translate it as specified in your instructions"
   }
   local translation_history = {
     {
       role = "system",
-      content = "You are a helpful translation assistant. Provide direct translations without additional commentary."
+      content = translation_prompt
     },
     translation_message
   }
@@ -54,12 +64,27 @@ local function showLoadingDialog()
 end
 
 local function showChatGPTDialog(ui, highlightedText, message_history)
+  if not highlightedText or highlightedText == "" then
+    UIManager:show(InfoMessage:new{
+      text = _("Please highlight some text first."),
+    })
+    return
+  end
+
   local title, author =
     ui.document:getProps().title or _("Unknown Title"),
     ui.document:getProps().authors or _("Unknown Author")
+  
+  local default_prompt = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Answer as concisely as possible."
+  local system_prompt = CONFIGURATION 
+    and CONFIGURATION.features 
+    and CONFIGURATION.features.custom_prompts 
+    and CONFIGURATION.features.custom_prompts.system
+    or default_prompt
+
   local message_history = message_history or {{
     role = "system",
-    content = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Answer as concisely as possible."
+    content = system_prompt
   }}
 
   local function handleNewQuestion(chatgpt_viewer, question)
@@ -97,7 +122,7 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
         UIManager:scheduleIn(0.1, function()
           local context_message = {
             role = "user",
-            content = "I'm reading something titled '" .. title .. "' by " .. author ..
+            content = "I'm reading something titled '" .. title .. "' by " .. author .. 
               ". I have a question about the following highlighted text: " .. highlightedText
           }
           table.insert(message_history, context_message)
@@ -129,36 +154,56 @@ local function showChatGPTDialog(ui, highlightedText, message_history)
     }
   }
 
-  if CONFIGURATION and CONFIGURATION.features and CONFIGURATION.features.translate_to then
-    table.insert(buttons, {
-      text = _("Translate"),
-      callback = function()
-        showLoadingDialog()
+  -- Add buttons for each custom prompt
+  if CONFIGURATION and CONFIGURATION.features and CONFIGURATION.features.custom_prompts then
+    for prompt_name, prompt in pairs(CONFIGURATION.features.custom_prompts) do
+      if prompt_name ~= "system" and type(prompt) == "string" then  -- Ensure prompt is valid
+        table.insert(buttons, {
+          text = _(prompt_name:gsub("^%l", string.upper)),  -- Capitalize first letter
+          callback = function()
+            showLoadingDialog()
 
-        UIManager:scheduleIn(0.1, function()
-          local translated_text = translateText(highlightedText, CONFIGURATION.features.translate_to)
+            UIManager:scheduleIn(0.1, function()
+              message_history = {  -- Reset message history for new prompt
+                {
+                  role = "system",
+                  content = prompt
+                },
+                {
+                  role = "user",
+                  content = "I'm reading something titled '" .. title .. "' by " .. author .. 
+                    "'. Here's the text I want you to process: " .. highlightedText
+                }
+              }
+              
+              local success, response = pcall(queryChatGPT, message_history)
+              
+              if not success then
+                UIManager:show(InfoMessage:new{
+                  text = _("Error: Failed to get response from ChatGPT"),
+                })
+                return
+              end
 
-          table.insert(message_history, {
-            role = "user",
-            content = "Translate to " .. CONFIGURATION.features.translate_to .. ": " .. highlightedText
-          })
+              table.insert(message_history, { 
+                role = "assistant", 
+                content = response 
+              })
 
-          table.insert(message_history, {
-            role = "assistant",
-            content = translated_text
-          })
+              local result_text = createResultText(highlightedText, message_history)
 
-          local result_text = createResultText(highlightedText, message_history)
-          local chatgpt_viewer = ChatGPTViewer:new {
-            title = _("Translation"),
-            text = result_text,
-            onAskQuestion = handleNewQuestion
-          }
+              local chatgpt_viewer = ChatGPTViewer:new {
+                title = _(prompt_name:gsub("^%l", string.upper)),
+                text = result_text,
+                onAskQuestion = handleNewQuestion
+              }
 
-          UIManager:show(chatgpt_viewer)
-        end)
+              UIManager:show(chatgpt_viewer)
+            end)
+          end
+        })
       end
-    })
+    end
   end
 
   input_dialog = InputDialog:new{

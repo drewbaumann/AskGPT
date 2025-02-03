@@ -3,6 +3,14 @@ local CONFIGURATION = {
     model = "gpt-4o-mini",
     base_url = "https://api.openai.com/v1/chat/completions",
     additional_parameters = {},
+    features = {
+        custom_prompts = {
+            system = "You are a helpful AI assistant analyzing text from a book. Be concise and insightful in your responses.",
+            translation = "You are a skilled translator and language expert. For each text: 1) Provide an accurate translation to French, 2) Then explain its meaning and context in the original language to help with understanding.",
+            summarize = "Provide a concise summary of the following text, highlighting the key points.",
+            explain = "Explain this text as if teaching it to someone, breaking down complex concepts."
+        }
+    }
 }
 
 return CONFIGURATION

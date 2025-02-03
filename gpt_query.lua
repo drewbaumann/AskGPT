@@ -24,8 +24,16 @@ local ltn12 = require("ltn12")
 local json = require("json")
 
 local function queryChatGPT(message_history)
+  if not message_history or #message_history == 0 then
+    error("No message history provided")
+  end
+
   -- Use api_key from CONFIGURATION or fallback to the api_key module
   local api_key_value = CONFIGURATION and CONFIGURATION.api_key or api_key
+  if not api_key_value then
+    error("No API key configured")
+  end
+
   local api_url = CONFIGURATION and CONFIGURATION.base_url or "https://api.openai.com/v1/chat/completions"
   local model = CONFIGURATION and CONFIGURATION.model or "gpt-4o-mini"
 
@@ -65,11 +73,15 @@ local function queryChatGPT(message_history)
   }
 
   if code ~= 200 then
-    error("Error querying ChatGPT API: " .. code)
+    error("Error querying ChatGPT API: " .. (code or "unknown error"))
   end
 
   local response = json.decode(table.concat(responseBody))
-  return response.choices[1].message.content
+  if not response or not response.choices or not response.choices[1] or not response.choices[1].message then
+    error("Invalid response format from API")
+  end
+
+  return response.choices[1].message.content or "No response content"
 end
 
 return queryChatGPT

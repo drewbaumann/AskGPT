@@ -43,12 +43,9 @@ return CONFIGURATION
 
 Additionally, as other extra features are rolled out, they will be optional and can be set in the `features` table in the `configuration.lua` file.
 
-
 ### Translation
 
-To enable translation, you can set the `translate_to` parameter in the `features` table. For example, if you want to translate the text to French, you can set the `translate_to` parameter to `"French"`.
-
-By setting the `translate_to` parameter, you can have the plugin translate the text to the language you specify. This is useful if you are reading a book in a language you are not fluent in and want to understand a chunk of text in a language you are more comfortable with.
+To enable translation, simply add a translation prompt to your features.custom_prompts configuration. The prompt should specify the target language and any other translation preferences. For example this one is for French:
 
 ```lua
 local CONFIGURATION = {
@@ -56,10 +53,34 @@ local CONFIGURATION = {
     model = "gpt-4o-mini",
     base_url = "https://api.openai.com/v1/chat/completions",
     features = {
-        translate_to = "French"
+        custom_prompts = {
+            translation = "Please translate the following text to French with definition."
+        }
     }
 }
 ```
+
+### Custom Prompts
+
+You can customize the prompts used for different interactions by adding them to the `features.custom_prompts` section. Each prompt (except 'system') will automatically generate a button in the interface. The button's name will be the capitalized version of the prompt key.
+
+For example, this configuration:
+
+```lua
+local CONFIGURATION = {
+    api_key = "YOUR_API_KEY",
+    model = "gpt-4o-mini",
+    base_url = "https://api.openai.com/v1/chat/completions",
+    features = {
+        custom_prompts = {
+            summarize = "Please summarize the following text.",
+            translate = "Please translate the following text to French."
+        }
+    }
+}
+```
+
+Will generate buttons labeled "Summarize" and "Translate" in the interface.
 
 ## Installation
 
