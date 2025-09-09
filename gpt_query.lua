@@ -47,7 +47,9 @@ local function queryChatGPT(message_history)
 
   -- Encode the request body as JSON
   local requestBody = json.encode(requestBodyTable)
-
+  if api_key_value == nil then
+    return("API Key not set properly")
+  end
   local headers = {
     ["Content-Type"] = "application/json",
     ["Authorization"] = "Bearer " .. api_key_value,

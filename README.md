@@ -1,3 +1,6 @@
+# THIS IS A FORK
+Added a button for single word definitions. I do not take credit for a majority of this work!!!
+
 # AskGPT: ChatGPT Highlight Plugin for KOReader
 
 Introducing AskGPT, a new plugin for KOReader that allows you to ask questions about the parts of the book you're reading and receive insightful answers from ChatGPT, an AI language model. With AskGPT, you can have a more interactive and engaging reading experience, and gain a deeper understanding of the content.
